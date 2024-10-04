@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import logo from './logo.png'; 
 
@@ -28,84 +28,10 @@ const InventoryManagementApp = () => {
   const [editingSaleId, setEditingSaleId] = useState(null);
   const [editingRemark, setEditingRemark] = useState('');
   const [assemblableProducts, setAssemblableProducts] = useState([]);
-  const [lowStockAlerts, setLowStockAlerts] = useState([]);
   
-  const LOW_STOCK_THRESHOLD = 5;
-  const calculateLowStockAlerts = useCallback(() => {
-    const alerts = [];
 
-    // Vérifier les produits avec un stock bas
-    products.forEach(product => {
-      if (product.stock <= LOW_STOCK_THRESHOLD) {
-        const missingParts = Object.entries(product.composition).filter(([partName, quantity]) => {
-          const part = parts.find(p => p.name === partName);
-          return part && part.stock < quantity;
-        });
 
-        if (missingParts.length > 0) {
-          alerts.push({
-            type: 'product',
-            name: product.name,
-            stock: product.stock,
-            missingParts: missingParts.map(([partName, quantity]) => ({
-              name: partName,
-              needed: quantity,
-              inStock: parts.find(p => p.name === partName).stock
-            }))
-          });
-        }
-      }
-    });
 
-    // Vérifier les pièces avec un stock bas
-    parts.forEach(part => {
-      if (part.stock <= LOW_STOCK_THRESHOLD) {
-        alerts.push({
-          type: 'part',
-          name: part.name,
-          stock: part.stock
-        });
-      }
-    });
-
-    setLowStockAlerts(alerts);
-  }, [products, parts]);
-
-  useEffect(() => {
-    calculateLowStockAlerts();
-  }, [calculateLowStockAlerts]);
-
-  // Fonction pour afficher les alertes
-  const renderAlerts = () => (
-    <div className="alerts-container">
-      <h3>Alertes de stock bas</h3>
-      {lowStockAlerts.length === 0 ? (
-        <p>Aucune alerte de stock bas.</p>
-      ) : (
-        <ul>
-          {lowStockAlerts.map((alert, index) => (
-            <li key={index}>
-              {alert.type === 'product' ? (
-                <>
-                  <strong>Produit : {alert.name}</strong> (Stock : {alert.stock})
-                  <ul>
-                    {alert.missingParts.map((part, partIndex) => (
-                      <li key={partIndex}>
-                        {part.name} : Besoin de {part.needed}, en stock {part.inStock}
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : (
-                <strong>Pièce : {alert.name}</strong>
-              )}
-              {alert.type === 'part' && ` (Stock : ${alert.stock})`}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
   // ... (autres fonctions restent inchangées)
 
 
@@ -460,8 +386,7 @@ const InventoryManagementApp = () => {
         ))}
       </nav>
       
-      {renderAlerts()}  {/* Ajouter cette ligne pour afficher les alertes */}
-
+      
       <div className="mb-4">
         <strong>Total des produits en stock :</strong> 
         <span className="badge badge-success ml-2">{totalAssembledProducts}</span>
